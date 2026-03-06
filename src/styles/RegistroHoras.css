@@ -1,0 +1,222 @@
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border: 1.5px solid var(--color-gray-border);
+  border-radius: var(--border-radius-sm);
+  padding: 6px 8px;
+}
+
+.month-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  min-width: 140px;
+  text-align: center;
+}
+
+.registro-card {
+  overflow: hidden;
+}
+
+.registro-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.registro-table {
+  min-width: 900px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.registro-table th,
+.registro-table td {
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-right: 1px solid rgba(0,0,0,0.04);
+}
+
+.registro-table th:last-child,
+.registro-table td:last-child {
+  border-right: none;
+}
+
+/* Column widths */
+.col-colaborador {
+  min-width: 160px;
+  width: 160px;
+  position: sticky;
+  left: 0;
+  background: inherit;
+  z-index: 2;
+}
+
+thead .col-colaborador {
+  background: var(--color-gray-light);
+  z-index: 3;
+}
+
+tbody tr .col-colaborador {
+  background: white;
+}
+
+.col-projeto {
+  min-width: 160px;
+  width: 160px;
+  position: sticky;
+  left: 160px;
+  background: inherit;
+  z-index: 2;
+  border-right: 2px solid rgba(0,0,0,0.08) !important;
+}
+
+thead .col-projeto {
+  background: var(--color-gray-light);
+  z-index: 3;
+}
+
+tbody tr .col-projeto {
+  background: white;
+}
+
+.col-day {
+  min-width: 48px;
+  width: 48px;
+  padding: 0 !important;
+  text-align: center;
+}
+
+.col-day.weekend {
+  background: rgba(193, 193, 193, 0.06);
+}
+
+thead .col-day.weekend {
+  background: rgba(193, 193, 193, 0.15);
+}
+
+.col-total {
+  min-width: 60px;
+  text-align: center;
+  position: sticky;
+  right: 40px;
+  background: white;
+  border-left: 2px solid rgba(0,0,0,0.08) !important;
+}
+
+thead .col-total {
+  background: var(--color-gray-light);
+}
+
+.col-action {
+  min-width: 40px;
+  width: 40px;
+  text-align: center;
+  position: sticky;
+  right: 0;
+  background: white;
+}
+
+thead .col-action {
+  background: var(--color-gray-light);
+}
+
+/* Day header */
+.day-header-day-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.day-header-day-label {
+  font-size: 10px;
+  color: var(--color-gray-medium);
+  margin-top: 2px;
+  line-height: 1;
+}
+
+thead th.col-day {
+  padding: 8px 4px !important;
+}
+
+/* Hours input */
+.hours-input {
+  width: 100%;
+  height: 100%;
+  min-height: 40px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  padding: 4px 2px;
+  transition: var(--transition);
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.hours-input::-webkit-inner-spin-button,
+.hours-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+.hours-input:focus {
+  background: rgba(198, 83, 72, 0.06);
+  outline: 2px solid var(--color-primary);
+  border-radius: 4px;
+}
+
+.hours-input:not(:placeholder-shown) {
+  background: rgba(56, 161, 105, 0.05);
+  color: var(--color-success);
+}
+
+/* Row total */
+.row-total {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* Cell select */
+.cell-select {
+  border: none !important;
+  border-radius: 0 !important;
+  font-size: 13px;
+  padding: 8px 28px 8px 10px !important;
+  background-position: right 6px center !important;
+}
+.cell-select:focus {
+  box-shadow: none !important;
+  border-bottom: 2px solid var(--color-primary) !important;
+}
+
+/* Footer */
+.registro-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.registro-warning-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px 12px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .month-label {
+    min-width: 120px;
+    font-size: 13px;
+  }
+
+  .registro-footer {
+    padding: 12px 16px;
+  }
+}
