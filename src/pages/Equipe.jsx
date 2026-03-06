@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { Users, Trash2, AlertTriangle } from 'lucide-react'
+import { Users, Trash2, AlertTriangle, UserPlus, Eye, EyeOff } from 'lucide-react'
 import { useToast } from '../hooks/useToast'
 import { ToastContainer } from '../components/Toast'
 import { useAuth } from '../contexts/AuthContext'
 
 const ROLES = ['Admin', 'Arquiteta', 'Designer', 'Estagiária']
+
+const emptyForm = { name: '', email: '', password: '', role: 'Arquiteta', is_active: true }
 
 export default function Equipe() {
   const { collaborator: currentUser } = useAuth()
@@ -13,6 +15,9 @@ export default function Equipe() {
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [form, setForm] = useState(emptyForm)
+  const [showPw, setShowPw] = useState(false)
+  const [creating, setCreating] = useState(false)
   const { toasts, addToast, removeToast } = useToast()
 
   useEffect(() => { loadCollaborators() }, [])
@@ -29,6 +34,37 @@ export default function Equipe() {
       setCollaborators(data || [])
     }
     setLoading(false)
+  }
+
+  async function handleCreate(e) {
+    e.preventDefault()
+    if (!form.name.trim() || !form.email.trim() || !form.password) return
+    setCreating(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await supabase.functions.invoke('create-user', {
+        body: {
+          email: form.email.trim(),
+          password: form.password,
+          name: form.name.trim(),
+          role: form.role,
+          is_active: form.is_active,
+        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+
+      if (res.error || res.data?.error) {
+        throw new Error(res.data?.error || res.error?.message || 'Erro ao criar usuário')
+      }
+
+      addToast(`Usuário ${form.name} criado com sucesso!`, 'success')
+      setForm(emptyForm)
+      setShowPw(false)
+      loadCollaborators()
+    } catch (err) {
+      addToast('Erro ao criar: ' + err.message, 'error')
+    }
+    setCreating(false)
   }
 
   async function updateField(id, field, value) {
@@ -50,7 +86,6 @@ export default function Equipe() {
 
   async function handleDelete(id) {
     setDeletingId(id)
-    // Delete from collaborators table — cascades to time_logs via FK ON DELETE CASCADE
     const { error } = await supabase
       .from('collaborators')
       .delete()
@@ -84,9 +119,7 @@ export default function Equipe() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button className="btn btn-ghost" onClick={() => setConfirmDelete(null)}>
-                Cancelar
-              </button>
+              <button className="btn btn-ghost" onClick={() => setConfirmDelete(null)}>Cancelar</button>
               <button
                 className="btn btn-danger"
                 onClick={() => handleDelete(confirmDelete.id)}
@@ -104,6 +137,96 @@ export default function Equipe() {
         <p className="page-subtitle">Gerencie os colaboradores e seus acessos ao sistema</p>
       </div>
 
+      {/* Form criar usuário */}
+      <div className="card" style={{ padding: '24px', marginBottom: '24px' }}>
+        <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 18, color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <UserPlus size={16} color="var(--color-primary)" />
+          Adicionar colaborador
+        </h2>
+        <form onSubmit={handleCreate}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14 }}>
+            <div className="form-group">
+              <label className="form-label">Nome completo</label>
+              <input
+                className="form-input"
+                type="text"
+                placeholder="Ana Carolina"
+                value={form.name}
+                onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">E-mail</label>
+              <input
+                className="form-input"
+                type="email"
+                placeholder="ana@cacau.com"
+                value={form.email}
+                onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Senha</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  className="form-input"
+                  type={showPw ? 'text' : 'password'}
+                  placeholder="Mínimo 6 caracteres"
+                  value={form.password}
+                  onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+                  required
+                  minLength={6}
+                  style={{ paddingRight: 40 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(p => !p)}
+                  style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-gray-medium)' }}
+                  tabIndex={-1}
+                >
+                  {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Função</label>
+              <select
+                className="form-select"
+                value={form.role}
+                onChange={e => setForm(p => ({ ...p, role: e.target.value }))}
+              >
+                {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+            <div className="form-group" style={{ justifyContent: 'flex-end' }}>
+              <label className="form-label">Status inicial</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+                <label className="toggle">
+                  <input
+                    type="checkbox"
+                    checked={form.is_active}
+                    onChange={e => setForm(p => ({ ...p, is_active: e.target.checked }))}
+                  />
+                  <span className="toggle-slider" />
+                </label>
+                <span style={{ fontSize: 13, fontWeight: 500, color: form.is_active ? 'var(--color-success)' : 'var(--color-gray-medium)' }}>
+                  {form.is_active ? 'Ativo' : 'Inativo'}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end' }}>
+            <button type="submit" className="btn btn-primary" disabled={creating}>
+              <UserPlus size={15} />
+              {creating ? 'Criando...' : 'Criar colaborador'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Tabela */}
       <div className="card">
         {loading ? (
           <div className="loading-center"><div className="spinner" /></div>
@@ -111,7 +234,6 @@ export default function Equipe() {
           <div className="empty-state">
             <Users size={40} />
             <p style={{ marginTop: 8, fontWeight: 500 }}>Nenhum colaborador cadastrado</p>
-            <p style={{ fontSize: 13 }}>Os colaboradores aparecerão aqui após se cadastrarem.</p>
           </div>
         ) : (
           <div className="table-wrapper">
@@ -134,8 +256,7 @@ export default function Equipe() {
                           background: 'var(--color-tertiary)',
                           borderRadius: '50%',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 13, fontWeight: 700,
-                          color: 'var(--color-primary)'
+                          fontSize: 13, fontWeight: 700, color: 'var(--color-primary)'
                         }}>
                           {col.name[0]?.toUpperCase()}
                         </div>
@@ -154,9 +275,7 @@ export default function Equipe() {
                         onChange={e => updateField(col.id, 'role', e.target.value)}
                         style={{ maxWidth: 160, padding: '6px 32px 6px 10px' }}
                       >
-                        {ROLES.map(r => (
-                          <option key={r} value={r}>{r}</option>
-                        ))}
+                        {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </td>
                     <td style={{ textAlign: 'center' }}>
@@ -169,10 +288,7 @@ export default function Equipe() {
                           />
                           <span className="toggle-slider" />
                         </label>
-                        <span style={{
-                          fontSize: 12, fontWeight: 500,
-                          color: col.is_active ? 'var(--color-success)' : 'var(--color-gray-medium)'
-                        }}>
+                        <span style={{ fontSize: 12, fontWeight: 500, color: col.is_active ? 'var(--color-success)' : 'var(--color-gray-medium)' }}>
                           {col.is_active ? 'Ativo' : 'Inativo'}
                         </span>
                       </div>
@@ -182,14 +298,13 @@ export default function Equipe() {
                         className="btn btn-sm btn-ghost"
                         onClick={() => setConfirmDelete(col)}
                         disabled={col.id === currentUser?.id}
-                        title={col.id === currentUser?.id ? 'Você não pode excluir a si mesmo' : 'Excluir colaborador'}
+                        title={col.id === currentUser?.id ? 'Você não pode excluir a si mesmo' : 'Excluir'}
                         style={{
                           color: col.id === currentUser?.id ? 'var(--color-gray-border)' : 'var(--color-danger)',
                           borderColor: col.id === currentUser?.id ? 'var(--color-gray-border)' : 'rgba(229,62,62,0.2)',
                         }}
                       >
-                        <Trash2 size={14} />
-                        Excluir
+                        <Trash2 size={14} /> Excluir
                       </button>
                     </td>
                   </tr>
@@ -201,13 +316,11 @@ export default function Equipe() {
       </div>
 
       <div style={{
-        marginTop: 16,
-        padding: '12px 16px',
+        marginTop: 16, padding: '12px 16px',
         background: 'rgba(231,177,91,0.1)',
         borderRadius: 'var(--border-radius-sm)',
         border: '1px solid rgba(231,177,91,0.3)',
-        fontSize: 13,
-        color: 'var(--color-text-secondary)',
+        fontSize: 13, color: 'var(--color-text-secondary)',
         display: 'flex', alignItems: 'center', gap: 8
       }}>
         <AlertTriangle size={14} color="var(--color-secondary)" />

@@ -2,16 +2,17 @@ import { useState } from 'react'
 import { NavLink, useNavigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
-  FolderOpen, Users, Clock, BarChart2,
+  FolderOpen, Users, Clock, BarChart2, Settings,
   LogOut, Menu, X, ChevronRight
 } from 'lucide-react'
 import '../styles/Layout.css'
 
 const navItems = [
-  { to: '/projetos', label: 'Projetos', icon: FolderOpen, adminOnly: true },
-  { to: '/equipe', label: 'Equipe', icon: Users, adminOnly: true },
-  { to: '/horas', label: 'Registro de Horas', icon: Clock, adminOnly: false },
-  { to: '/dashboard', label: 'Dashboard', icon: BarChart2, adminOnly: false },
+  { to: '/projetos',      label: 'Projetos',          icon: FolderOpen, adminOnly: true  },
+  { to: '/equipe',        label: 'Equipe',             icon: Users,      adminOnly: true  },
+  { to: '/horas',         label: 'Registro de Horas',  icon: Clock,      adminOnly: false },
+  { to: '/dashboard',     label: 'Dashboard',          icon: BarChart2,  adminOnly: false },
+  { to: '/configuracoes', label: 'Configurações',       icon: Settings,   adminOnly: false },
 ]
 
 export default function Layout() {
@@ -28,20 +29,15 @@ export default function Layout() {
 
   return (
     <div className="app-layout">
-      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div
-          className="sidebar-overlay"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-header">
           <img
             src="/logo-cacau.jpeg"
-            alt="Cacaucula"
+            alt="Cacau Arquitetura"
             className="sidebar-logo"
             onError={e => {
               e.target.style.display = 'none'
@@ -49,11 +45,7 @@ export default function Layout() {
             }}
           />
           <div className="sidebar-logo-fallback">C</div>
-
-          <button
-            className="sidebar-close-btn"
-            onClick={() => setSidebarOpen(false)}
-          >
+          <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
             <X size={20} />
           </button>
         </div>
@@ -63,9 +55,7 @@ export default function Layout() {
             <NavLink
               key={to}
               to={to}
-              className={({ isActive }) =>
-                `sidebar-nav-item ${isActive ? 'active' : ''}`
-              }
+              className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
               onClick={() => setSidebarOpen(false)}
             >
               <Icon size={18} />
@@ -92,19 +82,14 @@ export default function Layout() {
         </div>
       </aside>
 
-      {/* Main area */}
       <div className="main-wrapper">
-        {/* Topbar (mobile) */}
         <header className="topbar">
-          <button
-            className="topbar-menu-btn"
-            onClick={() => setSidebarOpen(true)}
-          >
+          <button className="topbar-menu-btn" onClick={() => setSidebarOpen(true)}>
             <Menu size={22} />
           </button>
           <img
             src="/logo-cacau.jpeg"
-            alt="Cacaucula"
+            alt="Cacau Arquitetura"
             className="topbar-logo"
             onError={e => e.target.style.display = 'none'}
           />

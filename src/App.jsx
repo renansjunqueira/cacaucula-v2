@@ -7,6 +7,7 @@ import Projetos from './pages/Projetos'
 import Equipe from './pages/Equipe'
 import RegistroHoras from './pages/RegistroHoras'
 import Dashboard from './pages/Dashboard'
+import Configuracoes from './pages/Configuracoes'
 
 export default function App() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
             {/* All active users */}
             <Route path="horas" element={<RegistroHoras />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="configuracoes" element={<Configuracoes />} />
           </Route>
 
           {/* Catch-all */}
