@@ -9,6 +9,7 @@ import RegistroHoras from './pages/RegistroHoras'
 import Dashboard from './pages/Dashboard'
 import Configuracoes from './pages/Configuracoes'
 import Propostas from './pages/Propostas'
+import Pipeline from './pages/Pipeline'
 
 export default function App() {
   return (
@@ -50,6 +51,14 @@ export default function App() {
               element={
                 <ProtectedRoute adminOnly>
                   <Propostas />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="pipeline"
+              element={
+                <ProtectedRoute adminOnly>
+                  <Pipeline />
                 </ProtectedRoute>
               }
             />

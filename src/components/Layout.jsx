@@ -3,7 +3,7 @@ import { NavLink, useNavigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
   FolderOpen, Users, Clock, BarChart2, Settings,
-  LogOut, Menu, X, ChevronRight, FileText
+  LogOut, Menu, X, ChevronRight, FileText, Kanban
 } from 'lucide-react'
 import '../styles/Layout.css'
 
@@ -11,6 +11,7 @@ const navItems = [
   { to: '/projetos',      label: 'Projetos',          icon: FolderOpen, adminOnly: true  },
   { to: '/equipe',        label: 'Equipe',             icon: Users,      adminOnly: true  },
   { to: '/propostas',    label: 'Propostas',          icon: FileText,   adminOnly: true  },
+  { to: '/pipeline',     label: 'Pipeline',           icon: Kanban,     adminOnly: true  },
   { to: '/horas',         label: 'Registro de Horas',  icon: Clock,      adminOnly: false },
   { to: '/dashboard',     label: 'Dashboard',          icon: BarChart2,  adminOnly: false },
   { to: '/configuracoes', label: 'Configurações',       icon: Settings,   adminOnly: false },
