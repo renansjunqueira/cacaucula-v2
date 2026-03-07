@@ -28,22 +28,25 @@ export default function CadastroCliente() {
   useEffect(() => {
     if (!leadId) { setNotFound(true); setLoading(false); return }
 
-    supabase.rpc('get_lead_for_form', { p_lead_id: leadId })
+    supabase
+      .from('leads')
+      .select('name, email, cpf_cnpj, endereco_cobranca, endereco_imovel, form_cadastral_preenchido')
+      .eq('id', leadId)
+      .maybeSingle()
       .then(({ data, error }) => {
-        if (error || !data || data.length === 0) {
+        if (error || !data) {
           setNotFound(true)
         } else {
-          const row = data[0]
-          setLeadName(row.name || '')
+          setLeadName(data.name || '')
           setForm({
-            name:               row.name               || '',
-            email:              row.email              || '',
-            cpf_cnpj:           row.cpf_cnpj           || '',
-            data_nascimento:    '',
-            endereco_cobranca:  row.endereco_cobranca  || '',
-            endereco_imovel:    row.endereco_imovel    || '',
+            name:              data.name              || '',
+            email:             data.email             || '',
+            cpf_cnpj:          data.cpf_cnpj          || '',
+            data_nascimento:   '',
+            endereco_cobranca: data.endereco_cobranca || '',
+            endereco_imovel:   data.endereco_imovel   || '',
           })
-          if (row.form_cadastral_preenchido) setSubmitted(true)
+          if (data.form_cadastral_preenchido) setSubmitted(true)
         }
         setLoading(false)
       })
@@ -55,15 +58,18 @@ export default function CadastroCliente() {
     if (!form.name.trim()) { setError('Por favor, informe seu nome.'); return }
     setError('')
     setSaving(true)
-    const { error } = await supabase.rpc('submit_lead_form', {
-      p_lead_id:           leadId,
-      p_name:              form.name,
-      p_email:             form.email,
-      p_cpf_cnpj:          form.cpf_cnpj,
-      p_data_nascimento:   form.data_nascimento || null,
-      p_endereco_cobranca: form.endereco_cobranca,
-      p_endereco_imovel:   form.endereco_imovel,
-    })
+    const { error } = await supabase
+      .from('leads')
+      .update({
+        name:                      form.name,
+        email:                     form.email,
+        cpf_cnpj:                  form.cpf_cnpj,
+        data_nascimento:           form.data_nascimento || null,
+        endereco_cobranca:         form.endereco_cobranca,
+        endereco_imovel:           form.endereco_imovel,
+        form_cadastral_preenchido: true,
+      })
+      .eq('id', leadId)
     setSaving(false)
     if (error) {
       setError('Ocorreu um erro ao enviar. Tente novamente.')
