@@ -7,7 +7,7 @@ import { ToastContainer } from '../components/Toast'
 import {
   Plus, X, ExternalLink, User, Phone, Tag, FileText,
   MessageSquare, Folder, Trophy, AlertTriangle, Star,
-  Home, Calendar, BookOpen, PauseCircle
+  Home, Calendar, BookOpen, PauseCircle, Link, CheckCircle
 } from 'lucide-react'
 import '../styles/Pipeline.css'
 
@@ -101,6 +101,7 @@ const emptyLead = {
   expectativa_inicio: '', lead_engagement_score: null,
   cpf_cnpj: '', email: '', endereco_cobranca: '',
   link_pasta_contrato: '', motivo_perda_pausa: '',
+  data_nascimento: '', form_cadastral_preenchido: false,
 }
 
 // ─── ScoreInput ───────────────────────────────────────────────────────────────
@@ -546,6 +547,15 @@ export default function Pipeline() {
     }
   }
 
+  // ── Copy public form link ─────────────────────────────────────────────────────
+  function handleCopyFormLink(e, lead) {
+    e.stopPropagation()
+    const url = `${window.location.origin}/cadastro-cliente/${lead.id}`
+    navigator.clipboard.writeText(url)
+      .then(() => addToast('Link copiado! Cole no WhatsApp do cliente.', 'success'))
+      .catch(() => addToast('Erro ao copiar link.', 'error'))
+  }
+
   // ── Quick "mark as lost" button on card ──────────────────────────────────────
   function handleMarkLost(e, lead) {
     e.stopPropagation()
@@ -573,6 +583,7 @@ export default function Pipeline() {
       endereco_cobranca: form.endereco_cobranca,
       link_pasta_contrato: form.link_pasta_contrato,
       motivo_perda_pausa: form.motivo_perda_pausa,
+      data_nascimento: form.data_nascimento || null,
     }
 
     if (form.id) {
@@ -669,6 +680,24 @@ export default function Pipeline() {
                                 <div className="pipeline-card-phone">
                                   <Phone size={10} /> {lead.phone}
                                 </div>
+                              )}
+
+                              {/* Badge: form filled */}
+                              {lead.form_cadastral_preenchido && (
+                                <div className="pipeline-card-form-badge">
+                                  <CheckCircle size={11} /> Dados Preenchidos
+                                </div>
+                              )}
+
+                              {/* Copy form link — shown on hover for "Proposta Enviada" */}
+                              {col.id === 'Proposta Enviada' && (
+                                <button
+                                  className="pipeline-card-form-link-btn"
+                                  title="Gerar link para formulário cadastral"
+                                  onClick={e => handleCopyFormLink(e, lead)}
+                                >
+                                  <Link size={13} /> Gerar link cadastral
+                                </button>
                               )}
 
                               {/* Quick "mark as lost" — hidden, shows on hover */}

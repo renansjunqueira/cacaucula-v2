@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard'
 import Configuracoes from './pages/Configuracoes'
 import Propostas from './pages/Propostas'
 import Pipeline from './pages/Pipeline'
+import CadastroCliente from './pages/CadastroCliente'
 
 export default function App() {
   return (
@@ -17,6 +18,9 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+
+          {/* Public — no auth required */}
+          <Route path="/cadastro-cliente/:leadId" element={<CadastroCliente />} />
 
           <Route
             path="/"
