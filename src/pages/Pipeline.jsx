@@ -283,8 +283,11 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
   async function handleSave() {
     if (!form.name.trim()) return
     setSaving(true)
-    await onSave(form)
-    setSaving(false)
+    try {
+      await onSave(form)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -398,7 +401,7 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
           <div className="pipeline-modal-section">
             <h3 className="pipeline-modal-section-title"><Folder size={14} /> Pasta Geral de Arquivos</h3>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <input className="form-input" type="url" placeholder="https://onedrive.live.com/..."
+              <input className="form-input" type="text" placeholder="https://onedrive.live.com/..."
                 value={form.files_link} onChange={e => set('files_link', e.target.value)} style={{ flex: 1 }} />
               {form.files_link && isValidUrl(form.files_link) && (
                 <a href={form.files_link} target="_blank" rel="noopener noreferrer"
@@ -420,7 +423,7 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
             <div className="form-group">
               <label className="form-label">Link da Pasta do Contrato</label>
               <div style={{ display: 'flex', gap: 8 }}>
-                <input className="form-input" type="url" placeholder="https://..."
+                <input className="form-input" type="text" placeholder="https://..."
                   value={form.link_pasta_contrato} onChange={e => set('link_pasta_contrato', e.target.value)} style={{ flex: 1 }} />
                 {form.link_pasta_contrato && isValidUrl(form.link_pasta_contrato) && (
                   <a href={form.link_pasta_contrato} target="_blank" rel="noopener noreferrer"
