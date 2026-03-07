@@ -604,16 +604,16 @@ export default function Propostas() {
         {calcDone && (
           <div className="propostas-margin-box">
             <div className="propostas-margin-item">
-              <span className="propostas-margin-label">Margem (R$)</span>
-              <span className={`propostas-margin-value ${marginValue >= 0 ? 'positive' : 'negative'}`}>
-                {formatCurrency(marginValue)}
+              <span className="propostas-margin-label">Margem (%)</span>
+              <span className={`propostas-margin-value ${marginPct >= 0 ? 'positive' : 'negative'}`}>
+                {formatPct(marginPct)}
               </span>
             </div>
             <div className="propostas-margin-divider" />
             <div className="propostas-margin-item">
-              <span className="propostas-margin-label">Margem (%)</span>
-              <span className={`propostas-margin-value ${marginPct >= 0 ? 'positive' : 'negative'}`}>
-                {formatPct(marginPct)}
+              <span className="propostas-margin-label">Margem (R$)</span>
+              <span className={`propostas-margin-value ${marginValue >= 0 ? 'positive' : 'negative'}`}>
+                {formatCurrency(marginValue)}
               </span>
             </div>
           </div>
