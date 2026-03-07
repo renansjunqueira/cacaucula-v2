@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 const ROLES = ['Admin', 'Usuário']
 
-const emptyForm = { name: '', email: '', password: '', role: 'Usuário', is_active: true }
+const emptyForm = { name: '', email: '', password: '', role: 'Usuário', is_active: true, hourly_rate: '' }
 
 export default function Equipe() {
   const { collaborator: currentUser } = useAuth()
@@ -18,6 +18,7 @@ export default function Equipe() {
   const [form, setForm] = useState(emptyForm)
   const [showPw, setShowPw] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [editingRates, setEditingRates] = useState({})
   const { toasts, addToast, removeToast } = useToast()
 
   useEffect(() => { loadCollaborators() }, [])
@@ -49,6 +50,7 @@ export default function Equipe() {
           name: form.name.trim(),
           role: form.role,
           is_active: form.is_active,
+          hourly_rate: form.hourly_rate === '' ? 0 : parseFloat(form.hourly_rate) || 0,
         },
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
@@ -209,6 +211,18 @@ export default function Equipe() {
                 {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
+            <div className="form-group">
+              <label className="form-label">Custo/hora (R$)</label>
+              <input
+                className="form-input"
+                type="number"
+                placeholder="0,00"
+                min="0"
+                step="0.01"
+                value={form.hourly_rate}
+                onChange={e => setForm(p => ({ ...p, hourly_rate: e.target.value }))}
+              />
+            </div>
             <div className="form-group" style={{ justifyContent: 'flex-end' }}>
               <label className="form-label">Status inicial</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
@@ -251,6 +265,7 @@ export default function Equipe() {
                 <tr>
                   <th>Colaborador</th>
                   <th>Função</th>
+                  <th style={{ textAlign: 'right' }}>Custo/hora</th>
                   <th style={{ textAlign: 'center' }}>Status</th>
                   <th style={{ textAlign: 'right' }}>Ações</th>
                 </tr>
@@ -287,6 +302,29 @@ export default function Equipe() {
                       >
                         {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                       </select>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end' }}>
+                        <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>R$</span>
+                        <input
+                          type="number"
+                          className="form-input"
+                          style={{ width: 88, textAlign: 'right', padding: '6px 8px' }}
+                          min="0"
+                          step="0.01"
+                          placeholder="0,00"
+                          value={editingRates[col.id] !== undefined ? editingRates[col.id] : (col.hourly_rate ?? '')}
+                          onChange={e => setEditingRates(p => ({ ...p, [col.id]: e.target.value }))}
+                          onBlur={() => {
+                            const raw = editingRates[col.id]
+                            if (raw !== undefined) {
+                              const val = raw === '' ? 0 : parseFloat(raw) || 0
+                              updateField(col.id, 'hourly_rate', val)
+                              setEditingRates(p => { const n = { ...p }; delete n[col.id]; return n })
+                            }
+                          }}
+                        />
+                      </div>
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>

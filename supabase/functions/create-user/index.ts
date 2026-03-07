@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
       })
     }
 
-    const { email, password, name, role, is_active } = await req.json()
+    const { email, password, name, role, is_active, hourly_rate } = await req.json()
     console.log('[create-user] creating user:', email, name, role)
 
     if (!email || !password || !name) {
@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
 
     const { error: updateError } = await adminClient
       .from('collaborators')
-      .update({ name, email, role: role || 'Usuário', is_active: is_active ?? true })
+      .update({ name, email, role: role || 'Usuário', is_active: is_active ?? true, hourly_rate: hourly_rate ?? 0 })
       .eq('id', newUser.user.id)
 
     console.log('[create-user] updateCollaborator error:', updateError?.message ?? 'none')
