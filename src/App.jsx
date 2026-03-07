@@ -8,6 +8,7 @@ import Equipe from './pages/Equipe'
 import RegistroHoras from './pages/RegistroHoras'
 import Dashboard from './pages/Dashboard'
 import Configuracoes from './pages/Configuracoes'
+import Propostas from './pages/Propostas'
 
 export default function App() {
   return (
@@ -41,6 +42,14 @@ export default function App() {
               element={
                 <ProtectedRoute adminOnly>
                   <Equipe />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="propostas"
+              element={
+                <ProtectedRoute adminOnly>
+                  <Propostas />
                 </ProtectedRoute>
               }
             />

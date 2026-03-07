@@ -1,0 +1,436 @@
+/* ==========================================
+   PROPOSTAS — Page Styles
+   ========================================== */
+
+.propostas-page {
+  padding-bottom: 100px; /* room for fixed save bar */
+}
+
+/* ── Selector bar ────────────────────────────── */
+.propostas-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.propostas-selector-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.propostas-select {
+  min-width: 220px;
+}
+
+/* ── Sections ────────────────────────────────── */
+.propostas-section {
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.propostas-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 18px;
+}
+
+.propostas-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.propostas-section-header .propostas-section-title {
+  margin-bottom: 0;
+}
+
+.propostas-task-count {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  background: var(--color-gray-light);
+  border: 1px solid var(--color-gray-border);
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+/* ── Identificação ───────────────────────────── */
+.propostas-ident-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .propostas-ident-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Tasks table ─────────────────────────────── */
+.propostas-tasks-wrapper {
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.propostas-tasks-header {
+  display: grid;
+  grid-template-columns: 180px 1fr 90px 100px 120px 36px;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--color-gray-light);
+  border-bottom: 1px solid var(--color-gray-border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.propostas-task-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 90px 100px 120px 36px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-gray-border);
+  transition: background 0.15s;
+}
+
+.propostas-task-row:last-child {
+  border-bottom: none;
+}
+
+.propostas-task-row:hover {
+  background: rgba(198, 83, 72, 0.03);
+}
+
+.propostas-cost-cell {
+  text-align: right;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.propostas-task-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(229, 62, 62, 0.2);
+  background: none;
+  color: var(--color-danger);
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.propostas-task-delete:hover:not(:disabled) {
+  background: rgba(229, 62, 62, 0.08);
+}
+
+.propostas-task-delete:disabled {
+  color: var(--color-gray-border);
+  border-color: var(--color-gray-border);
+  cursor: not-allowed;
+}
+
+.propostas-task-footer {
+  display: grid;
+  grid-template-columns: 180px 1fr 90px 100px 120px 36px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--color-gray-light);
+  border-top: 2px solid var(--color-gray-border);
+}
+
+.propostas-footer-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.propostas-footer-total {
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.propostas-footer-cost {
+  color: var(--color-primary);
+  font-size: 14px;
+}
+
+.propostas-add-task {
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .propostas-tasks-header,
+  .propostas-task-row,
+  .propostas-task-footer {
+    grid-template-columns: 150px 1fr 80px 90px 110px 32px;
+  }
+}
+
+@media (max-width: 700px) {
+  .propostas-tasks-header {
+    display: none;
+  }
+  .propostas-task-row,
+  .propostas-task-footer {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+}
+
+/* ── Prazo ───────────────────────────────────── */
+.propostas-prazo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .propostas-prazo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.propostas-readonly-field {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--color-gray-light);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: default;
+}
+
+.propostas-placeholder {
+  color: var(--color-text-secondary);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.propostas-field-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+/* ── Orçamento ───────────────────────────────── */
+.propostas-cost-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--color-gray-light);
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: 20px;
+}
+
+.propostas-cost-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.propostas-cost-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* Mode toggle */
+.propostas-mode-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  margin-bottom: 20px;
+  width: fit-content;
+}
+
+.propostas-mode-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  background: var(--color-white);
+  border-right: 1px solid var(--color-gray-border);
+  transition: var(--transition);
+  user-select: none;
+}
+
+.propostas-mode-option:last-child {
+  border-right: none;
+}
+
+.propostas-mode-option input[type="radio"] {
+  display: none;
+}
+
+.propostas-mode-option.active {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.propostas-mode-option:not(.active):hover {
+  background: var(--color-gray-light);
+}
+
+.propostas-budget-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .propostas-budget-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.propostas-calc-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(198, 83, 72, 0.1);
+  color: var(--color-primary);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  letter-spacing: 0.3px;
+}
+
+/* Margin highlight */
+.propostas-margin-box {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--color-success);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  margin-bottom: 20px;
+  background: rgba(56, 161, 105, 0.04);
+}
+
+.propostas-margin-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 20px;
+}
+
+.propostas-margin-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--color-success);
+  opacity: 0.3;
+}
+
+.propostas-margin-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+}
+
+.propostas-margin-value {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.propostas-margin-value.positive {
+  color: var(--color-success);
+}
+
+.propostas-margin-value.negative {
+  color: var(--color-danger);
+}
+
+/* Orçar button */
+.propostas-orcar-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.propostas-orcar-btn {
+  font-size: 15px;
+  padding: 11px 28px;
+  background: var(--color-secondary);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.propostas-orcar-btn:hover {
+  background: #d4a14f;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Save bar ────────────────────────────────── */
+.propostas-save-bar {
+  position: fixed;
+  bottom: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--color-gray-border);
+  padding: 14px 32px;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 100;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+}
+
+.propostas-save-btn {
+  font-size: 15px;
+  padding: 12px 32px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .propostas-save-bar {
+    left: 0;
+    padding: 12px 16px;
+  }
+}
