@@ -317,6 +317,261 @@
   background: var(--color-white);
 }
 
+/* ── Card meta row ───────────────────────── */
+.pipeline-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.pipeline-card-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.pipeline-card-score {
+  font-size: 11px;
+  color: var(--color-secondary);
+  letter-spacing: 1px;
+}
+
+.pipeline-card-phone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+/* ── Quick "mark as lost" button ─────────── */
+.pipeline-card-lost-btn {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(100, 100, 100, 0.2);
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+  justify-content: center;
+}
+
+.pipeline-card:hover .pipeline-card-lost-btn {
+  display: flex;
+}
+
+.pipeline-card-lost-btn:hover {
+  background: rgba(229, 62, 62, 0.08);
+  border-color: rgba(229, 62, 62, 0.3);
+  color: var(--color-danger);
+}
+
+/* ── Modal overlay (centered modals) ────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  background: var(--color-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 460px;
+  animation: fadeInScale 0.18s ease;
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Completion modal ────────────────────── */
+.completion-modal {
+  max-width: 540px;
+  padding: 0;
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.completion-modal-header {
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--color-gray-border);
+  flex-shrink: 0;
+}
+
+.completion-modal-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  margin-bottom: 10px;
+}
+
+.completion-modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+}
+
+.completion-modal-sub {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.completion-modal-body {
+  padding: 20px 28px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.completion-modal-body::-webkit-scrollbar {
+  width: 4px;
+}
+.completion-modal-body::-webkit-scrollbar-thumb {
+  background: var(--color-gray-border);
+  border-radius: 2px;
+}
+
+.completion-modal-footer {
+  padding: 16px 28px;
+  border-top: 1px solid var(--color-gray-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ── Score input (star rating) ───────────── */
+.score-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.score-star {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--color-gray-border);
+  transition: color 0.15s, transform 0.1s;
+  line-height: 0;
+}
+
+.score-star.filled {
+  color: var(--color-secondary);
+}
+
+.score-star:hover {
+  color: var(--color-secondary);
+  transform: scale(1.15);
+}
+
+.score-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-left: 6px;
+}
+
+/* ── URL list input ──────────────────────── */
+.url-list-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.url-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.url-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--color-gray-light);
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--border-radius-sm);
+}
+
+.url-link {
+  flex: 1;
+  font-size: 12px;
+  color: var(--color-primary);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.url-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.url-remove:hover {
+  background: rgba(229, 62, 62, 0.1);
+  color: var(--color-danger);
+}
+
+.url-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── Lead modal hint ─────────────────────── */
+.pipeline-modal-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: -4px;
+}
+
 /* ── Responsive ──────────────────────────── */
 @media (max-width: 768px) {
   .pipeline-page {
@@ -329,5 +584,8 @@
   }
   .pipeline-modal {
     max-width: 100%;
+  }
+  .modal {
+    padding: 20px;
   }
 }
