@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../hooks/useToast'
@@ -60,12 +61,18 @@ function formatPct(value) {
 export default function Propostas() {
   const { session, collaborator: currentUser } = useAuth()
   const { toasts, addToast, removeToast } = useToast()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   // --- Data ---
   const [savedProposals, setSavedProposals] = useState([])
   const [collaborators, setCollaborators] = useState([])
   const [loadingList, setLoadingList] = useState(true)
   const [saving, setSaving] = useState(false)
+
+  // --- From Pipeline (lead linking) ---
+  const [linkedLeadId, setLinkedLeadId] = useState(null)
+  const [showReturnModal, setShowReturnModal] = useState(false)
 
   // --- Form state ---
   const [currentId, setCurrentId] = useState(null)
@@ -89,6 +96,18 @@ export default function Propostas() {
   useEffect(() => {
     loadProposals()
     loadCollaborators()
+  }, [])
+
+  // ─── Pre-fill from Pipeline navigation state ──────────────────────────────────
+  useEffect(() => {
+    const fromLead = location.state?.fromLead
+    if (fromLead?.id && fromLead?.name) {
+      setLinkedLeadId(fromLead.id)
+      setLeadName(fromLead.name)
+      setProjectName(`${fromLead.name} - Projeto`)
+      // Clear nav state so a refresh doesn't re-trigger
+      window.history.replaceState({}, '', window.location.pathname)
+    }
   }, [])
 
   async function loadProposals() {
@@ -320,7 +339,17 @@ export default function Propostas() {
     }
 
     setCurrentId(propId)
-    addToast('Proposta salva com sucesso!', 'success')
+
+    // If navigated from Pipeline, link the lead ↔ this proposal
+    if (linkedLeadId) {
+      await supabase.from('proposals').update({ lead_id: linkedLeadId }).eq('id', propId)
+      await supabase.from('leads').update({ active_proposal_id: propId }).eq('id', linkedLeadId)
+      setLinkedLeadId(null)
+      setShowReturnModal(true)
+    } else {
+      addToast('Proposta salva com sucesso!', 'success')
+    }
+
     loadProposals()
     setSaving(false)
   }
@@ -639,6 +668,38 @@ export default function Propostas() {
           {saving ? 'Salvando...' : currentId ? 'Atualizar Proposta' : 'Salvar Proposta'}
         </button>
       </div>
+
+      {/* ── Return to Kanban modal (shown after saving when coming from Pipeline) ── */}
+      {showReturnModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+          zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 20, backdropFilter: 'blur(2px)'
+        }}>
+          <div style={{
+            background: 'var(--color-white)', borderRadius: 'var(--border-radius)',
+            boxShadow: 'var(--shadow-lg)', padding: 32, width: '100%', maxWidth: 420,
+            textAlign: 'center', animation: 'fadeIn 0.2s ease'
+          }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>✅</div>
+            <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>Proposta salva!</h3>
+            <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginBottom: 24, lineHeight: 1.6 }}>
+              A proposta foi vinculada ao lead no Kanban. Deseja voltar ao Pipeline ou continuar editando?
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <button
+                className="btn btn-ghost"
+                onClick={() => { setShowReturnModal(false); addToast('Proposta salva com sucesso!', 'success') }}
+              >
+                Continuar editando
+              </button>
+              <button className="btn btn-primary" onClick={() => navigate('/pipeline')}>
+                Voltar ao Kanban
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

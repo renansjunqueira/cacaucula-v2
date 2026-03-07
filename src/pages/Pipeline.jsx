@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -7,7 +8,7 @@ import { ToastContainer } from '../components/Toast'
 import {
   Plus, X, ExternalLink, User, Phone, Tag, FileText,
   MessageSquare, Folder, Trophy, AlertTriangle, Star,
-  Home, Calendar, BookOpen, PauseCircle, Link, CheckCircle
+  Home, Calendar, BookOpen, PauseCircle, Link, CheckCircle, Search
 } from 'lucide-react'
 import '../styles/Pipeline.css'
 
@@ -102,6 +103,7 @@ const emptyLead = {
   cpf_cnpj: '', email: '', endereco_cobranca: '',
   link_pasta_contrato: '', motivo_perda_pausa: '',
   data_nascimento: '', form_cadastral_preenchido: false,
+  active_proposal_id: null,
 }
 
 // ─── ScoreInput ───────────────────────────────────────────────────────────────
@@ -266,6 +268,92 @@ function ConfirmModal({ title, message, onConfirm, onCancel, confirmLabel = 'Con
         <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
           <button className="btn btn-ghost" onClick={onCancel}>{cancelLabel}</button>
           <button className="btn btn-primary" onClick={onConfirm}>{confirmLabel}</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── LinkProposalModal ────────────────────────────────────────────────────────
+function LinkProposalModal({ lead, onLink, onCancel }) {
+  const [all, setAll] = useState([])
+  const [search, setSearch] = useState('')
+  const [selected, setSelected] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [linking, setLinking] = useState(false)
+
+  useEffect(() => {
+    supabase
+      .from('proposals')
+      .select('id, lead_name, project_name, created_at')
+      .order('created_at', { ascending: false })
+      .limit(50)
+      .then(({ data }) => { setAll(data || []); setLoading(false) })
+  }, [])
+
+  const displayed = all
+    .filter(p => {
+      if (!search.trim()) return true
+      const s = search.toLowerCase()
+      return p.lead_name?.toLowerCase().includes(s) || p.project_name?.toLowerCase().includes(s)
+    })
+    .slice(0, 5)
+
+  async function handleConfirm() {
+    if (!selected) return
+    setLinking(true)
+    await onLink(lead, selected)
+    setLinking(false)
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onCancel}>
+      <div className="modal link-proposal-modal" onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+          <div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Vincular Proposta Existente</h3>
+            <p style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>Lead: <strong>{lead.name}</strong></p>
+          </div>
+          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }} onClick={onCancel}><X size={18} /></button>
+        </div>
+
+        <div style={{ position: 'relative', marginBottom: 12 }}>
+          <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-gray-medium)' }} />
+          <input
+            className="form-input"
+            type="text"
+            placeholder="Buscar por lead ou projeto..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            autoFocus
+            style={{ paddingLeft: 32 }}
+          />
+        </div>
+
+        {loading ? (
+          <div style={{ padding: '20px 0', textAlign: 'center' }}><div className="spinner" style={{ margin: '0 auto' }} /></div>
+        ) : displayed.length === 0 ? (
+          <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', padding: '12px 0' }}>Nenhuma proposta encontrada.</p>
+        ) : (
+          <div className="link-proposal-list">
+            {displayed.map(p => (
+              <div
+                key={p.id}
+                className={`link-proposal-item ${selected?.id === p.id ? 'selected' : ''}`}
+                onClick={() => setSelected(p)}
+              >
+                <span className="link-proposal-item-lead">{p.lead_name}</span>
+                <span className="link-proposal-item-project">{p.project_name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+          <button className="btn btn-ghost" onClick={onCancel}>Cancelar</button>
+          <button className="btn btn-primary" onClick={handleConfirm} disabled={!selected || linking}>
+            {linking ? 'Vinculando...' : 'Confirmar Vínculo'}
+          </button>
         </div>
       </div>
     </div>
@@ -482,12 +570,14 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
 export default function Pipeline() {
   const { collaborator: currentUser } = useAuth()
   const { toasts, addToast, removeToast } = useToast()
+  const navigate = useNavigate()
 
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useState(null)
   const [pendingMove, setPendingMove] = useState(null)  // { lead, toStatus, missingFields }
   const [ganhoConfirm, setGanhoConfirm] = useState(null)
+  const [linkProposalModal, setLinkProposalModal] = useState(null)  // lead object
 
   // ── Load ────────────────────────────────────────────────────────────────────
   const loadLeads = useCallback(async () => {
@@ -556,6 +646,23 @@ export default function Pipeline() {
     navigator.clipboard.writeText(url)
       .then(() => addToast('Link copiado! Cole no WhatsApp do cliente.', 'success'))
       .catch(() => addToast('Erro ao copiar link.', 'error'))
+  }
+
+  // ── Create new proposal (navigate to /propostas pre-filled) ─────────────────
+  function handleCreateProposal(e, lead) {
+    e.stopPropagation()
+    navigate('/propostas', { state: { fromLead: { id: lead.id, name: lead.name } } })
+  }
+
+  // ── Link existing proposal to lead ───────────────────────────────────────────
+  async function handleLinkProposal(lead, proposal) {
+    const { error: e1 } = await supabase.from('proposals').update({ lead_id: lead.id }).eq('id', proposal.id)
+    if (e1) { addToast('Erro ao vincular proposta: ' + e1.message, 'error'); return }
+    const { error: e2 } = await supabase.from('leads').update({ active_proposal_id: proposal.id }).eq('id', lead.id)
+    if (e2) { addToast('Erro ao atualizar lead: ' + e2.message, 'error'); return }
+    setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, active_proposal_id: proposal.id } : l))
+    setLinkProposalModal(null)
+    addToast('Proposta vinculada com sucesso!', 'success')
   }
 
   // ── Quick "mark as lost" button on card ──────────────────────────────────────
@@ -696,6 +803,33 @@ export default function Pipeline() {
                                 </div>
                               )}
 
+                              {/* Badge: proposal linked */}
+                              {lead.active_proposal_id && (
+                                <div className="pipeline-card-proposal-badge">
+                                  <FileText size={11} /> Proposta Vinculada
+                                </div>
+                              )}
+
+                              {/* "Construindo Proposta" — create or link proposal */}
+                              {col.id === 'Construindo Proposta' && (
+                                <div className="pipeline-card-proposal-actions">
+                                  <button
+                                    className="pipeline-card-proposal-btn primary"
+                                    title="Criar nova proposta para este lead"
+                                    onClick={e => handleCreateProposal(e, lead)}
+                                  >
+                                    <Plus size={11} /> Criar Proposta
+                                  </button>
+                                  <button
+                                    className="pipeline-card-proposal-btn secondary"
+                                    title="Vincular proposta existente"
+                                    onClick={e => { e.stopPropagation(); setLinkProposalModal(lead) }}
+                                  >
+                                    <Search size={11} /> Vincular
+                                  </button>
+                                </div>
+                              )}
+
                               {/* Copy form link — shown on hover for "Proposta Enviada" */}
                               {col.id === 'Proposta Enviada' && (
                                 <button
@@ -768,6 +902,15 @@ export default function Pipeline() {
           confirmLabel="Criar Projeto" cancelLabel="Não, obrigado"
           onConfirm={handleCreateProject}
           onCancel={() => setGanhoConfirm(null)}
+        />
+      )}
+
+      {/* Link existing proposal */}
+      {linkProposalModal && (
+        <LinkProposalModal
+          lead={linkProposalModal}
+          onLink={handleLinkProposal}
+          onCancel={() => setLinkProposalModal(null)}
         />
       )}
     </div>
