@@ -286,6 +286,8 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
     setSaving(true)
     try {
       await onSave(form)
+    } catch (err) {
+      console.error('[LeadModal] save error:', err)
     } finally {
       setSaving(false)
     }
@@ -570,35 +572,40 @@ export default function Pipeline() {
 
   // ── Save full lead form ──────────────────────────────────────────────────────
   async function handleSaveLead(form) {
-    const payload = {
-      name: form.name, phone: form.phone, source: form.source,
-      status: form.status, demand_description: form.demand_description,
-      files_link: form.files_link, notes: form.notes,
-      endereco_imovel: form.endereco_imovel,
-      descricao_imovel: form.descricao_imovel,
-      arquivos_imovel: form.arquivos_imovel || [],
-      expectativa_inicio: form.expectativa_inicio || null,
-      lead_engagement_score: form.lead_engagement_score || null,
-      cpf_cnpj: form.cpf_cnpj, email: form.email,
-      endereco_cobranca: form.endereco_cobranca,
-      link_pasta_contrato: form.link_pasta_contrato,
-      motivo_perda_pausa: form.motivo_perda_pausa,
-      data_nascimento: form.data_nascimento || null,
-    }
+    try {
+      const payload = {
+        name: form.name, phone: form.phone, source: form.source,
+        status: form.status, demand_description: form.demand_description,
+        files_link: form.files_link, notes: form.notes,
+        endereco_imovel: form.endereco_imovel,
+        descricao_imovel: form.descricao_imovel,
+        arquivos_imovel: form.arquivos_imovel || [],
+        expectativa_inicio: form.expectativa_inicio || null,
+        lead_engagement_score: form.lead_engagement_score || null,
+        cpf_cnpj: form.cpf_cnpj, email: form.email,
+        endereco_cobranca: form.endereco_cobranca,
+        link_pasta_contrato: form.link_pasta_contrato,
+        motivo_perda_pausa: form.motivo_perda_pausa,
+        data_nascimento: form.data_nascimento || null,
+      }
 
-    if (form.id) {
-      const { error } = await supabase.from('leads').update(payload).eq('id', form.id)
-      if (error) { addToast('Erro ao salvar: ' + error.message, 'error'); return }
-      setLeads(prev => prev.map(l => l.id === form.id ? { ...l, ...form } : l))
-      if (form.status === 'Ganho') setGanhoConfirm(form)
-    } else {
-      const { data, error } = await supabase
-        .from('leads').insert({ ...payload, created_by: currentUser.id }).select().single()
-      if (error) { addToast('Erro ao criar lead: ' + error.message, 'error'); return }
-      setLeads(prev => [...prev, { ...data, arquivos_imovel: data.arquivos_imovel || [] }])
+      if (form.id) {
+        const { error } = await supabase.from('leads').update(payload).eq('id', form.id)
+        if (error) { addToast('Erro ao salvar: ' + error.message, 'error'); return }
+        setLeads(prev => prev.map(l => l.id === form.id ? { ...l, ...form } : l))
+        if (form.status === 'Ganho') setGanhoConfirm(form)
+      } else {
+        const { data, error } = await supabase
+          .from('leads').insert({ ...payload, created_by: currentUser?.id }).select().single()
+        if (error) { addToast('Erro ao criar lead: ' + error.message, 'error'); return }
+        setLeads(prev => [...prev, { ...data, arquivos_imovel: data?.arquivos_imovel || [] }])
+      }
+      addToast('Lead salvo!', 'success')
+      setSelectedLead(null)
+    } catch (err) {
+      console.error('[handleSaveLead]', err)
+      addToast('Erro inesperado: ' + (err?.message ?? 'verifique o console.'), 'error')
     }
-    addToast('Lead salvo!', 'success')
-    setSelectedLead(null)
   }
 
   // ── Delete ───────────────────────────────────────────────────────────────────
