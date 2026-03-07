@@ -21,8 +21,10 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   async function handleLogout() {
-    await signOut()
-    navigate('/login')
+    try {
+      await signOut()
+    } catch (_) {}
+    navigate('/login', { replace: true })
   }
 
   const visibleItems = navItems.filter(item => !item.adminOnly || isAdmin)

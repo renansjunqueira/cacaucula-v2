@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
@@ -41,6 +42,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function Dashboard() {
+  const { isAdmin, collaborator: currentUser } = useAuth()
   const now = new Date()
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth())
@@ -66,7 +68,7 @@ export default function Dashboard() {
       const daysInMonth = new Date(year, month + 1, 0).getDate()
       const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`
 
-      const { data: logs, error } = await supabase
+      let logsQuery = supabase
         .from('time_logs')
         .select(`
           logged_hours,
@@ -77,6 +79,10 @@ export default function Dashboard() {
         `)
         .gte('date', startDate)
         .lte('date', endDate)
+
+      if (!isAdmin) logsQuery = logsQuery.eq('collaborator_id', currentUser.id)
+
+      const { data: logs, error } = await logsQuery
 
       if (error) {
         setLoading(false)
@@ -134,7 +140,7 @@ export default function Dashboard() {
       setLoading(false)
     }
     load()
-  }, [year, month])
+  }, [year, month, isAdmin, currentUser])
 
   const StatCard = ({ icon: Icon, label, value, color }) => (
     <div className="card stat-card">
@@ -181,12 +187,14 @@ export default function Dashboard() {
               value={`${stats.totalHours}h`}
               color="var(--color-primary)"
             />
-            <StatCard
-              icon={Users}
-              label="Colaboradores ativos"
-              value={stats.activeCollabs}
-              color="var(--color-secondary)"
-            />
+            {isAdmin && (
+              <StatCard
+                icon={Users}
+                label="Colaboradores ativos"
+                value={stats.activeCollabs}
+                color="var(--color-secondary)"
+              />
+            )}
             <StatCard
               icon={TrendingUp}
               label="Projetos com lançamentos"
@@ -196,8 +204,8 @@ export default function Dashboard() {
           </div>
 
           <div className="charts-grid">
-            {/* Bar chart: total by collaborator */}
-            <div className="card chart-card">
+            {/* Bar chart: total by collaborator — admin only */}
+            {isAdmin && <div className="card chart-card">
               <div className="chart-header">
                 <BarChart2 size={18} color="var(--color-primary)" />
                 <h3 className="chart-title">Horas por Colaborador</h3>
@@ -231,7 +239,7 @@ export default function Dashboard() {
                   </BarChart>
                 </ResponsiveContainer>
               )}
-            </div>
+            </div>}
 
             {/* Pie chart: distribution by project */}
             <div className="card chart-card">
@@ -279,8 +287,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Stacked bar: projects per collaborator */}
-          {detailedData.rows?.length > 0 && detailedData.projects?.length > 0 && (
+          {/* Stacked bar: projects per collaborator — admin only */}
+          {isAdmin && detailedData.rows?.length > 0 && detailedData.projects?.length > 0 && (
             <div className="card chart-card" style={{ marginTop: 20 }}>
               <div className="chart-header">
                 <BarChart2 size={18} color="var(--color-primary)" />

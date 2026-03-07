@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { User, Mail, Lock, Save } from 'lucide-react'
+import { User, Mail, Lock, Save, CheckCircle } from 'lucide-react'
 import { useToast } from '../hooks/useToast'
 import { ToastContainer } from '../components/Toast'
 
@@ -14,6 +14,7 @@ export default function Configuracoes() {
   const [savingName, setSavingName] = useState(false)
   const [savingEmail, setSavingEmail] = useState(false)
   const [savingPw, setSavingPw] = useState(false)
+  const [pwSuccess, setPwSuccess] = useState(false)
   const { toasts, addToast, removeToast } = useToast()
 
   async function handleSaveName(e) {
@@ -62,8 +63,9 @@ export default function Configuracoes() {
     if (error) {
       addToast('Erro ao atualizar senha: ' + error.message, 'error')
     } else {
-      addToast('Senha atualizada com sucesso!', 'success')
+      setPwSuccess(true)
       setPwForm({ password: '', confirm: '' })
+      setTimeout(() => setPwSuccess(false), 4000)
     }
     setSavingPw(false)
   }
@@ -173,7 +175,13 @@ export default function Configuracoes() {
                 minLength={6}
               />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12 }}>
+              {pwSuccess && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--color-success)', fontWeight: 500 }}>
+                  <CheckCircle size={15} />
+                  Senha alterada com sucesso!
+                </span>
+              )}
               <button type="submit" className="btn btn-primary" disabled={savingPw}>
                 <Save size={14} />
                 {savingPw ? 'Salvando...' : 'Alterar senha'}

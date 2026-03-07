@@ -51,6 +51,12 @@ export default function RegistroHoras() {
   // Load collaborators and projects
   useEffect(() => {
     async function load() {
+      if (!isAdmin) {
+        setCollaborators([{ id: currentUser.id, name: currentUser.name }])
+        const { data: projs } = await supabase.from('projects').select('id, name').eq('is_active', true).order('name')
+        setProjects(projs || [])
+        return
+      }
       const [{ data: cols }, { data: projs }] = await Promise.all([
         supabase.from('collaborators').select('id, name').eq('is_active', true).order('name'),
         supabase.from('projects').select('id, name').eq('is_active', true).order('name'),
@@ -59,7 +65,7 @@ export default function RegistroHoras() {
       setProjects(projs || [])
     }
     load()
-  }, [])
+  }, [isAdmin, currentUser])
 
   // Load time_logs for current month/year
   const loadTimeLogs = useCallback(async () => {
@@ -67,12 +73,14 @@ export default function RegistroHoras() {
     const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
     const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`
 
-    const query = supabase
+    let query = supabase
       .from('time_logs')
       .select('*')
       .gte('date', startDate)
       .lte('date', endDate)
       .order('created_at')
+
+    if (!isAdmin) query = query.eq('collaborator_id', currentUser.id)
 
     const { data, error } = await query
     if (error) {
@@ -100,9 +108,10 @@ export default function RegistroHoras() {
     }
 
     const loadedRows = Object.values(rowMap)
-    setRows(loadedRows.length > 0 ? loadedRows : [emptyRow()])
+    const fallbackRow = isAdmin ? emptyRow() : { ...emptyRow(), collaborator_id: currentUser.id }
+    setRows(loadedRows.length > 0 ? loadedRows : [fallbackRow])
     setLoadingData(false)
-  }, [year, month, daysInMonth])
+  }, [year, month, daysInMonth, isAdmin, currentUser])
 
   useEffect(() => { loadTimeLogs() }, [loadTimeLogs])
 
@@ -116,7 +125,8 @@ export default function RegistroHoras() {
   }
 
   function addRow() {
-    setRows(prev => [...prev, emptyRow()])
+    const newRow = isAdmin ? emptyRow() : { ...emptyRow(), collaborator_id: currentUser.id }
+    setRows(prev => [...prev, newRow])
   }
 
   function removeRow(tempId) {
@@ -290,6 +300,7 @@ export default function RegistroHoras() {
                             className="form-select cell-select"
                             value={row.collaborator_id}
                             onChange={e => updateRowField(row.tempId, 'collaborator_id', e.target.value)}
+                            disabled={!isAdmin}
                           >
                             <option value="">Selecione...</option>
                             {collaborators.map(c => (

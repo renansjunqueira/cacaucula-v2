@@ -20,6 +20,9 @@ export function ProtectedRoute({ children, adminOnly = false }) {
 
   if (!session) return <Navigate to="/login" replace />
 
+  // Session exists but no collaborator record — orphan session, go to login
+  if (!collaborator) return <Navigate to="/login" replace />
+
   if (collaborator && !collaborator.is_active) {
     return (
       <div style={{

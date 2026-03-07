@@ -5,9 +5,9 @@ import { useToast } from '../hooks/useToast'
 import { ToastContainer } from '../components/Toast'
 import { useAuth } from '../contexts/AuthContext'
 
-const ROLES = ['Admin', 'Arquiteta', 'Designer', 'Estagiária']
+const ROLES = ['Admin', 'Usuário']
 
-const emptyForm = { name: '', email: '', password: '', role: 'Arquiteta', is_active: true }
+const emptyForm = { name: '', email: '', password: '', role: 'Usuário', is_active: true }
 
 export default function Equipe() {
   const { collaborator: currentUser } = useAuth()
@@ -53,8 +53,17 @@ export default function Equipe() {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
 
-      if (res.error || res.data?.error) {
-        throw new Error(res.data?.error || res.error?.message || 'Erro ao criar usuário')
+      if (res.error) {
+        // Read the actual error body from the Response object
+        let msg = res.error.message
+        try {
+          const body = await res.error.context?.json?.()
+          if (body?.error) msg = body.error
+        } catch (_) {}
+        throw new Error(msg)
+      }
+      if (res.data?.error) {
+        throw new Error(res.data.error)
       }
 
       addToast(`Usuário ${form.name} criado com sucesso!`, 'success')
@@ -262,6 +271,7 @@ export default function Equipe() {
                         </div>
                         <div>
                           <p style={{ fontWeight: 500, fontSize: 14 }}>{col.name}</p>
+                          <p style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 1 }}>{col.email || '—'}</p>
                           {col.id === currentUser?.id && (
                             <span className="badge badge-primary" style={{ fontSize: 10 }}>você</span>
                           )}
