@@ -151,8 +151,8 @@ function UrlListInput({ urls, onChange }) {
       <div className="url-add-row">
         <input
           className="form-input"
-          type="url"
-          placeholder="https://..."
+          type="text"
+          placeholder="https://drive.google.com/..."
           value={newUrl}
           onChange={e => setNewUrl(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add() } }}
@@ -183,7 +183,7 @@ function FieldInput({ field, value, onChange }) {
   return (
     <input
       className="form-input"
-      type={field.type || 'text'}
+      type={field.type === 'url' ? 'text' : (field.type || 'text')}
       placeholder={field.placeholder || ''}
       value={value || ''}
       onChange={e => onChange(e.target.value)}
