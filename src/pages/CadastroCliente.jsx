@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabasePublic as supabase } from '../lib/supabasePublic'
 import '../styles/CadastroCliente.css'
 
 export default function CadastroCliente() {
