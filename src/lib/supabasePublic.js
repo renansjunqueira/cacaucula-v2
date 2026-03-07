@@ -10,5 +10,6 @@ export const supabasePublic = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: false,
     autoRefreshToken: false,
     detectSessionInUrl: false,
+    storageKey: 'sb-cacaucula-public', // chave diferente → evita conflito de Web Lock
   },
 })
